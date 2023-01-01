@@ -33,6 +33,8 @@
 *.su
 *.swp
 *.tab.[ch]
+out
+
 
 # Build tree
 /build*
