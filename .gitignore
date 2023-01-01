@@ -39,6 +39,8 @@
 *.swp
 *.tab.[ch]
 *.ti-*
+out
+
 # Build tree
 /build*
 
