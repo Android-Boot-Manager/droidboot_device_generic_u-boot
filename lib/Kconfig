@@ -8,6 +8,11 @@ config ADDR_MAP
 
 	  This library only works in the post-relocation phase.
 
+config DROIDBOOT
+	bool "Enable droidboot (ABM) gui to be built"
+	help
+	  Enable droidboot (ABM) gui to be built
+
 config SYS_NUM_ADDR_MAP
 	int "Size of the address-map table"
 	depends on ADDR_MAP
