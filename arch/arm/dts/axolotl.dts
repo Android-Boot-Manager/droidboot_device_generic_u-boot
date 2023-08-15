@@ -1,0 +1,120 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * SHIFT6mq (axolotl) board device tree source
+ *
+ * (C) Copyright 2023 Linaro
+ * Author: Caleb Connolly <caleb.connolly@linaro.org>
+ *
+ */
+
+/dts-v1/;
+
+#include <dt-bindings/input/linux-event-codes.h>
+
+#include "sdm845.dtsi"
+#include "pm8998.dtsi"
+
+/ {
+	model = "SHIFT6mq";
+	compatible = "shift,axolotl", "qcom,sdm845", "qcom,mtp";
+
+	aliases {
+		serial0 = &uart9;
+	};
+
+	chosen {
+		stdout-path = "serial0:921600n8";
+	};
+
+	smbios {
+		compatible = "u-boot,sysinfo-smbios";
+
+		smbios {
+			system {
+				manufacturer = "SHIFT";
+				product = "SHIFT6mq";
+			};
+
+			baseboard {
+				manufacturer = "SHIFT";
+				product = "SHIFT6mq";
+			};
+		};
+	};
+
+	gpio-keys {
+		compatible = "gpio-keys";
+
+		key-vol-up {
+			label = "Volume Up";
+			linux,code = <KEY_UP>;
+			gpios = <&pm8998_gpios 5 GPIO_ACTIVE_LOW>;
+		};
+	};
+
+	framebuffer: framebuffer@9D400000 {
+		compatible = "simple-framebuffer";
+		reg = <0 0x9D400000 0 (2160 * 1080 * 4)>;
+		width = <1080>;
+		height = <2160>;
+		stride = <(1080 * 4)>;
+		format = "a8r8g8b8";
+	};
+};
+
+&pm8998_resin {
+	status = "okay";
+};
+
+&sdhc_2 {
+	status = "disabled";
+
+	clocks = <&gcc GCC_SDCC2_AHB_CLK>,
+		 <&gcc GCC_SDCC2_APPS_CLK>;
+	clock-names = "iface", "core";
+
+	bus-width = <4>;
+	non-removable;
+};
+
+&tlmm {
+	gpio-reserved-ranges = <0 4>, <81 4>;
+};
+
+&uart9 {
+	status = "okay";
+};
+
+&ufs_mem_hc {
+	status = "okay";
+
+	reset-gpios = <&tlmm 150 GPIO_ACTIVE_LOW>;
+};
+
+&ufs_mem_phy {
+	status = "okay";
+};
+
+&usb_1 {
+	status = "okay";
+	qcom,select-utmi-as-pipe-clk;
+};
+
+&usb_1_dwc3 {
+	dr_mode = "peripheral";
+
+	/* We don't support superspeed in u-boot so remove the SSPHY */
+	phys = <&usb_1_hsphy>;
+	phy-names = "usb2-phy";
+
+	/* fastest mode for USB 2 */
+	maximum-speed = "high-speed";
+};
+
+&usb_1_hsphy {
+	/* Remove ref clk because rmphcc isn't available */
+	clocks = <&gcc GCC_USB_PHY_CFG_AHB2PHY_CLK>;
+	clock-names = "cfg_ahb";
+
+	status = "okay";
+};

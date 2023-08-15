@@ -604,7 +604,10 @@ dtb-$(CONFIG_ARCH_SNAPDRAGON) += dragonboard410c.dtb \
 	dragonboard820c.dtb \
 	dragonboard845c.dtb \
 	starqltechn.dtb \
-	qcs404-evb.dtb
+	qcs404-evb.dtb \
+	axolotl.dtb \
+	enchilada.dtb \
+	fajita.dtb
 
 dtb-$(CONFIG_TARGET_STEMMY) += ste-ux500-samsung-stemmy.dtb
 

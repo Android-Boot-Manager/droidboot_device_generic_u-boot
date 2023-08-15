@@ -1,0 +1,106 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * OnePlus 6/6T (enchilada/fajita) board device tree source
+ *
+ * (C) Copyright 2023 Caleb Connolly <caleb.connolly@linaro.org>
+ *
+ */
+
+/dts-v1/;
+
+#include "sdm845.dtsi"
+#include "pm8998.dtsi"
+
+/ {
+	aliases {
+		serial0 = &uart9;
+	};
+
+	chosen {
+		stdout-path = "serial0:921600n8";
+	};
+
+	gpio-keys {
+		compatible = "gpio-keys";
+
+		key-vol-down {
+			label = "Volume down";
+			linux,code = <KEY_VOLUMEDOWN>;
+			gpios = <&pm8998_gpios 4 GPIO_ACTIVE_LOW>;
+			debounce-interval = <15>;
+		};
+
+		key-vol-up {
+			label = "Volume up";
+			linux,code = <KEY_VOLUMEUP>;
+			gpios = <&pm8998_gpios 5 GPIO_ACTIVE_LOW>;
+			debounce-interval = <15>;
+		};
+	};
+
+	memory@80000000 {
+		device_type = "memory";
+		reg = <0 0x80000000 0 0xffffffff
+		       1 0x80000000 0 0xfc8a0000>;
+	};
+
+	framebuffer: framebuffer@9D400000 {
+		compatible = "simple-framebuffer";
+		/*
+		 * The 6T actually has a taller screen, but missing a
+		 * few pixels on the bottom isn't an issue for u-boot.
+		 */
+		reg = <0 0x9D400000 0 (2160 * 1080 * 4)>;
+		width = <1080>;
+		height = <2160>;
+		stride = <(1080 * 4)>;
+		format = "a8r8g8b8";
+	};
+};
+
+&pm8998_pwrkey {
+	label = "Power";
+	linux,code = <KEY_ENTER>;
+};
+
+&tlmm {
+	gpio-reserved-ranges = <0 4>, <81 4>;
+};
+
+&uart9 {
+	status = "okay";
+};
+
+&ufs_mem_hc {
+	status = "okay";
+
+	reset-gpios = <&tlmm 150 GPIO_ACTIVE_LOW>;
+};
+
+&ufs_mem_phy {
+	status = "okay";
+};
+
+&usb_1 {
+	status = "okay";
+	qcom,select-utmi-as-pipe-clk;
+};
+
+&usb_1_dwc3 {
+	dr_mode = "peripheral";
+
+	/* We don't support superspeed in u-boot so remove the SSPHY */
+	phys = <&usb_1_hsphy>;
+	phy-names = "usb2-phy";
+
+	/* fastest mode for USB 2 */
+	maximum-speed = "high-speed";
+};
+
+&usb_1_hsphy {
+	/* Remove ref clk because rmphcc isn't available */
+	clocks = <&gcc GCC_USB_PHY_CFG_AHB2PHY_CLK>;
+	clock-names = "cfg_ahb";
+
+	status = "okay";
+};

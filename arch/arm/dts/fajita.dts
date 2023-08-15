@@ -1,0 +1,14 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * OnePlus 6/6T (enchilada/fajita) board device tree source
+ *
+ * (C) Copyright 2023 Caleb Connolly <caleb.connolly@linaro.org>
+ *
+ */
+
+#include "sdm845-oneplus-common.dtsi"
+
+/ {
+	model = "OnePlus 6T";
+	compatible = "oneplus,fajita", "qcom,sdm845";
+};
