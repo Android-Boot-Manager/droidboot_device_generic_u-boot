@@ -24,4 +24,16 @@ config APPLE_DART
 	  configuration to put the DART into bypass mode such that it can
 	  be used transparently by U-Boot.
 
+config ARM_SMMU
+	bool "Arm SMMU support"
+	depends on IOMMU && ARM
+	help
+	  Enable support for the Arm System MMU. It is used on some ARM SoCs
+	  to provide IOMMU functionality for peripheral devices like USB
+	  controllers.
+
+	  This driver expects the SMMU to have been initialized by a previous
+	  boot stage, and only performs basic configuration to configure a
+	  context bank for a stream.
+
 endmenu

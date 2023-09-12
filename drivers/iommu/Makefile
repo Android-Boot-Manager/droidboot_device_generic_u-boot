@@ -4,3 +4,4 @@ obj-$(CONFIG_IOMMU) += iommu-uclass.o
 
 obj-$(CONFIG_APPLE_DART) += apple_dart.o
 obj-$(CONFIG_SANDBOX) += sandbox_iommu.o
+obj-$(CONFIG_ARM_SMMU) += arm-smmu.o
