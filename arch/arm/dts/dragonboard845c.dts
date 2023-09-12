@@ -27,6 +27,18 @@
 		device_type = "memory";
 		reg = <0 0x80000000 0 0xfdfa0000>;
 	};
+
+	pcie_usb_dual_pwr: vldo-3v3-regulator {
+		compatible = "regulator-gpio";
+		regulator-name = "VLDO_3V3";
+
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+
+		enable-gpios = <&tlmm 90 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		states = <0 0>, <1800000 1>;
+	};
 };
 
 &pm8998_resin {
@@ -34,5 +46,31 @@
 };
 
 &uart9 {
+	status = "okay";
+};
+
+&usb_2 {
+	status = "okay";
+	qcom,select-utmi-as-pipe-clk;
+};
+
+&usb_2_dwc3 {
+	dr_mode = "host";
+
+	/* We don't support superspeed in u-boot so remove the SSPHY */
+	phys = <&usb_2_hsphy>;
+	phy-names = "usb2-phy";
+
+	/* fastest mode for USB 2 */
+	maximum-speed = "high-speed";
+
+	vbus-supply = <&pcie_usb_dual_pwr>;
+};
+
+&usb_2_hsphy {
+	/* Remove ref clk because rmphcc isn't available */
+	clocks = <&gcc GCC_USB_PHY_CFG_AHB2PHY_CLK>;
+	clock-names = "cfg_ahb";
+
 	status = "okay";
 };
