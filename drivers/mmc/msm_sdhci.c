@@ -227,8 +227,8 @@ static int msm_of_to_plat(struct udevice *dev)
 	host->index = fdtdec_get_uint(gd->fdt_blob, node, "index", 0);
 	priv->base = (void *)fdtdec_get_addr_size_auto_parent(gd->fdt_blob,
 			dev_of_offset(parent), node, "reg", 1, NULL, false);
-	if (priv->base == (void *)FDT_ADDR_T_NONE ||
-	    host->ioaddr == (void *)FDT_ADDR_T_NONE)
+
+	if (host->ioaddr == (void *)FDT_ADDR_T_NONE)
 		return -EINVAL;
 
 	return 0;
