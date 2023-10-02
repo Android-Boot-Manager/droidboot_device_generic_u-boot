@@ -436,17 +436,24 @@ static int qusb2phy_probe(struct udevice *dev)
 		return PTR_ERR(qphy->base);
 
 	ret = qusb2phy_clk_init(dev, qphy);
-	if (ret)
+	if (ret) {
+		printf("%s: Couldn't get clocks: %d\n", __func__, ret);
 		return ret;
+	}
 
 	ret = reset_get_by_index(dev, 0, &qphy->phy_rst);
-	if (ret)
+	if (ret) {
+		printf("%s: Couldn't get resets: %d\n", __func__, ret);
 		return ret;
+	}
 
 	qphy->cfg = (const struct qusb2_phy_cfg *)dev_get_driver_data(dev);
-	if (!qphy->cfg)
+	if (!qphy->cfg) {
+		printf("%s: Couldn't get driver data\n", __func__);
 		return -EINVAL;
+	}
 
+	debug("%s success qusb phy cfg %p\n", __func__, qphy->cfg);
 	return 0;
 }
 
