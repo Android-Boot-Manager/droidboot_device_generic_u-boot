@@ -673,6 +673,15 @@ int clk_enable(struct clk *clk)
 	return 0;
 }
 
+void clk_dump_clks(struct udevice *dev)
+{
+	const struct clk_ops *ops;
+
+	ops = clk_dev_ops(dev);
+	if (ops && ops->dump_clks)
+		ops->dump_clks(dev);
+}
+
 int clk_enable_bulk(struct clk_bulk *bulk)
 {
 	int i, ret;

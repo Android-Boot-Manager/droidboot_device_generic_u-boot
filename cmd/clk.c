@@ -21,6 +21,8 @@ static void show_clks(struct udevice *dev, int depth, int last_flag)
 	struct clk *clkp, *parent;
 	u32 rate;
 
+	clk_dump_clks(dev);
+
 	clkp = dev_get_clk_ptr(dev);
 	if (clkp) {
 		parent = clk_get_parent(clkp);

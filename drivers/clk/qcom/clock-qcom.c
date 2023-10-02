@@ -206,9 +206,157 @@ static int msm_clk_enable(struct clk *clk)
 	return 0;
 }
 
+static void dump_gplls(struct udevice *dev, phys_addr_t base) {
+	static phys_addr_t gplls[] = {
+		0x00100000,
+		0x00101000,
+		0x00102000,
+		0x00103000,
+		0x00176000,
+		0x00174000,
+		0x00113000,
+		0x0011a000,
+		0x0011b000,
+		0x0011c000,
+		0x0011d000,
+		0x0014a000,
+	};
+	uint32_t i;
+	bool locked;
+	uint64_t l, a, xo_rate = 19200000;
+	struct clk clk;
+	int ret;
+	u32 pll_branch = readl(0x00152018);
+
+	ret = clk_get_by_name(dev, "xo_board", &clk);
+	if (ret < 0) {
+		ret = clk_get_by_name(dev, "xo-board", &clk);
+		if (ret < 0)
+			printf("Can't find XO clock, XO_BOARD rate may be wrong\n");
+	}
+
+	if (ret >= 0)
+		xo_rate = clk_get_rate(&clk);
+
+	printf("| GPLL   | LOCKED | GATE | XO_BOARD  |  PLL_L     | ALPHA          |\n");
+	printf("+--------+--------+------+-----------+------------+----------------+\n");
+	for (i = 0; i < ARRAY_SIZE(gplls); i++) {
+		locked = !!(readl(gplls[i]) & BIT(31));
+		l = readl(gplls[i] + 4) & (BIT(16)-1);
+		a = readq(gplls[i] + 40) & (BIT(16)-1);
+		printf("| GPLL%-2d | %-6s | %-4s | %9llu * (%#-9llx + %#-13llx  * 2 ** -40 ) / 1000000\n",
+			i, locked ? "X" : "", pll_branch & BIT(i) ? "X" : "", xo_rate, l, a);
+	}
+}
+
+static void dump_rcgs(void) {
+	static phys_addr_t rcgs[] = {
+		// 0x0010f018, // RB2
+		// 0x0010f030,
+		// 0x0010f05c,
+
+		// RB5
+		// 0x00175024, // GCC_UFS_CARD_AXI_CMD_RCGR
+		// 0x0017506c, // GCC_UFS_CARD_ICE_CORE_CMD_RCGR
+		// 0x00175084, // GCC_UFS_CARD_UNIPRO_CORE_CMD_RCGR
+		// 0x001750a0, // GCC_UFS_CARD_PHY_AUX_CMD_RCGR
+		// 0x00177024, // GCC_UFS_PHY_AXI_CMD_RCGR
+		// 0x0017706c, // GCC_UFS_PHY_ICE_CORE_CMD_RCGR
+		// 0x00177084, // GCC_UFS_PHY_UNIPRO_CORE_CMD_RCGR
+		// 0x001770a0, // GCC_UFS_PHY_PHY_AUX_CMD_RCGR
+		0x0011400c, // GCC_SDCC2_APPS_CMD_RCGR
+		//0x001184D0
+
+		// RB3
+		//0x00118148
+	};
+	static const char * const rcg_names[] = {
+		// "USB30_PRIM_MASTER", // RB2
+		// "USB30_PRIM_MOCK_UTMI",
+		// "USB3_PRIM_PHY_AUX",
+
+		// RB5
+		// "GCC_UFS_CARD_AXI_CMD_RCGR",
+		// "GCC_UFS_CARD_ICE_CORE_CMD_RCGR",
+		// "GCC_UFS_CARD_UNIPRO_CORE_CMD_RCGR",
+		// "GCC_UFS_CARD_PHY_AUX_CMD_RCGR",
+		// "GCC_UFS_PHY_AXI_CMD_RCGR",
+		// "GCC_UFS_PHY_ICE_CORE_CMD_RCGR",
+		// "GCC_UFS_PHY_UNIPRO_CORE_CMD_RCGR",
+		// "GCC_UFS_PHY_PHY_AUX_CMD_RCGR",
+		"GCC_SDCC2_APPS_CMD_RCGR",
+		//"UART",
+	};
+	int i;
+	uint32_t cmd;
+	uint32_t cfg;
+	uint32_t not_n_minus_m;
+	uint32_t src, m, n, div;
+	bool root_on, d_odd;
+	printf("\nRCGs:\n");
+
+	for (i = 0; i < ARRAY_SIZE(rcgs); i++) {
+		cmd = readl(rcgs[i]);
+		cfg = readl(rcgs[i] + 0x4);
+		m = readl(rcgs[i] + 0x8);
+		not_n_minus_m = readl(rcgs[i] + 0xc);
+
+		root_on = !(cmd & BIT(31)); // ROOT_OFF
+		src = (cfg >> 8) & 7;
+
+		if (not_n_minus_m)
+			n = (~not_n_minus_m & 0xffff) + m;
+		else
+			n = 0;
+
+		div = ((cfg & 0b11111) + 1) / 2;
+		d_odd = ((cfg & 0b11111) + 1) % 2 == 1;
+		printf("%#010x %#010x %#010x %#010x %#010x\n", cmd, cfg, m, not_n_minus_m, readl(rcgs[i] + 0x10));
+		printf("%-32s: %-1s src %d | input_freq * (%#x/%#x) * (1/%d%s)",
+			rcg_names[i], root_on ? "X" : "", src, m ?: 1, n ?: 1, div, d_odd ? ".5" : "");
+		printf("  [%#010X]\n", cmd);
+	}
+
+	printf("\n");
+}
+
+static void msm_dump_clks(struct udevice *dev)
+{
+	struct msm_clk_data *data = (struct msm_clk_data *)dev_get_driver_data(dev);
+	struct msm_clk_priv *priv = dev_get_priv(dev);
+	const struct gate_clk *sclk;
+	const struct qcom_reset_map *rst;
+	int val, i;
+
+	if (!data->clks) {
+		printf("No clocks\n");
+		return;
+	}
+
+	for (i = 0; i < data->num_clks; i++) {
+		sclk = &data->clks[i];
+		if (!sclk->name)
+			continue;
+		printf("%-32s: ", sclk->name);
+		val = readl(priv->base + sclk->reg) & sclk->en_val;
+		printf("%s\n", val ? "ON" : "");
+	}
+
+	for (i = 0; i < data->num_resets; i++) {
+		rst = &data->resets[i];
+		printf("%#05x: ", rst->reg);
+		val = readl(priv->base + rst->reg);
+		printf("%s\n", val > 0 ? "ON" : "");
+	}
+
+	dump_gplls(dev, priv->base);
+	dump_rcgs();
+}
+
 static struct clk_ops msm_clk_ops = {
 	.set_rate = msm_clk_set_rate,
 	.enable = msm_clk_enable,
+	.dump_clks = msm_dump_clks,
 };
 
 U_BOOT_DRIVER(qcom_clk) = {
