@@ -1,0 +1,119 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright (c) 2023, Linaro Limited
+ * Based on Linux devicetree
+ */
+
+/dts-v1/;
+
+#include <dt-bindings/arm/qcom,ids.h>
+
+#include "sm6115.dtsi"
+
+/ {
+	model = "Qualcomm Technologies, Inc. QRB4210 RB2";
+	compatible = "qcom,qrb4210-rb2", "qcom,qrb4210";
+	qcom,msm-id = <QCOM_ID_QRB4210 0x10000>;
+	qcom,board-id = <QCOM_BOARD_ID(QRD, 5, 1) 0>;
+
+	aliases {
+		serial0 = &uart4;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	clocks {
+		clk40M: can-clk {
+			compatible = "fixed-clock";
+			clock-frequency = <40000000>;
+			#clock-cells = <0>;
+		};
+	};
+
+	smbios {
+		compatible = "u-boot,sysinfo-smbios";
+
+		smbios {
+			system {
+				manufacturer = "Qualcomm Technologies, Inc.";
+				product = "Qualcomm Robotics RB2";
+			};
+
+			baseboard {
+				manufacturer = "Thundercomm";
+				product = "TurboX-C4210-SoM";
+			};
+		};
+	};
+};
+
+&sdhc_1 {
+	/* Remove rpmcc clocks */
+	clocks = <&gcc GCC_SDCC1_AHB_CLK>,
+		 <&gcc GCC_SDCC1_APPS_CLK>,
+		 <&gcc GCC_SDCC1_ICE_CORE_CLK>;
+	clock-names = "iface", "core", "ice";
+
+	no-sdio;
+	non-removable;
+
+	status = "okay";
+};
+
+&sdhc_2 {
+	/* Remove rpmcc clocks */
+	clocks = <&gcc GCC_SDCC2_AHB_CLK>,
+		 <&gcc GCC_SDCC2_APPS_CLK>;
+	clock-names = "iface", "core";
+
+	no-sdio;
+
+	clock-frequency = <200000000>;
+
+	cd-gpios = <&tlmm 88 GPIO_ACTIVE_LOW>;
+
+	/* SD card support is broken currently */
+	status = "disabled";
+};
+
+&sleep_clk {
+	clock-frequency = <32000>;
+};
+
+&tlmm {
+	gpio-reserved-ranges = <43 2>, <49 1>, <54 1>,
+			       <56 3>, <61 2>, <64 1>,
+			       <68 1>, <72 8>, <96 1>;
+};
+
+&uart4 {
+	status = "okay";
+};
+
+&usb {
+	status = "okay";
+	qcom,select-utmi-as-pipe-clk;
+};
+
+&usb_dwc3 {
+	dr_mode = "host";
+	maximum-speed = "high-speed";
+
+	/* We don't support superspeed in u-boot so remove the SSPHY */
+	phys = <&usb_hsphy>;
+	phy-names = "usb2-phy";
+};
+
+&usb_hsphy {
+	status = "okay";
+
+	/* Disable ref clk because rpmcc isn't supported */
+	clocks = <&gcc GCC_AHB2PHY_USB_CLK>;
+	clock-names = "cfg_ahb";
+};
+
+&xo_board {
+	clock-frequency = <19200000>;
+};

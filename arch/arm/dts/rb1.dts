@@ -1,0 +1,110 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause)
+/*
+ * Copyright (c) 2023, Linaro Ltd
+ */
+
+/dts-v1/;
+
+#include <dt-bindings/arm/qcom,ids.h>
+
+#include "qcm2290.dtsi"
+
+/ {
+	model = "Qualcomm Technologies, Inc. Robotics RB1";
+	compatible = "qcom,qrb2210-rb1", "qcom,qrb2210", "qcom,qcm2290";
+	qcom,msm-id = <QCOM_ID_QRB2210 0x10000>;
+	qcom,board-id = <QCOM_BOARD_ID(QRD, 0, 0) 0>;
+
+	aliases {
+		serial0 = &uart4;
+		sdhc1 = &sdhc_1;
+		sdhc2 = &sdhc_2;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	smbios {
+		compatible = "u-boot,sysinfo-smbios";
+
+		smbios {
+			system {
+				manufacturer = "Qualcomm Technologies, Inc.";
+				product = "Qualcomm Robotics RB1";
+			};
+
+			baseboard {
+				manufacturer = "Thundercomm";
+				product = "TurboX-C2210-SoM";
+			};
+		};
+	};
+};
+
+&sdhc_1 {
+	clocks = <&gcc GCC_SDCC1_AHB_CLK>,
+		 <&gcc GCC_SDCC1_APPS_CLK>,
+		 <&gcc GCC_SDCC1_ICE_CORE_CLK>;
+	clock-names = "iface",
+		      "core",
+		      "ice";
+
+	non-removable;
+	supports-cqe;
+	no-sdio;
+	no-sd;
+	status = "okay";
+};
+
+&sdhc_2 {
+	clocks = <&gcc GCC_SDCC2_AHB_CLK>,
+		 <&gcc GCC_SDCC2_APPS_CLK>;
+	clock-names = "iface",
+		      "core";
+
+	clock-frequency = <200000000>;
+
+	cd-gpios = <&tlmm 88 GPIO_ACTIVE_LOW>;
+
+	no-sdio;
+	no-mmc;
+
+	/* SD card support is broken currently */
+	status = "disabled";
+};
+
+&qupv3_id_0 {
+	status = "okay";
+
+	/delete-property/ iommus;
+};
+
+&uart4 {
+	compatible = "qcom,geni-debug-uart";
+	status = "disabled";
+};
+
+&usb {
+	status = "okay";
+	qcom,select-utmi-as-pipe-clk;
+
+	//dr_mode = "host";
+};
+
+&usb_dwc3 {
+	dr_mode = "host";
+	maximum-speed = "high-speed";
+};
+
+&usb_hsphy {
+	status = "okay";
+
+	/* Disable ref clk because rpmcc isn't supported */
+	clocks = <&gcc GCC_AHB2PHY_USB_CLK>;
+	clock-names = "cfg_ahb";
+};
+
+&xo_board {
+	clock-frequency = <38400000>;
+};
