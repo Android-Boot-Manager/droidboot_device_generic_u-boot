@@ -10,6 +10,7 @@
 #include <blk.h>
 #include <command.h>
 #include <console.h>
+#include <dm.h>
 #include <errno.h>
 #include <g_dnl.h>
 #include <malloc.h>
@@ -25,6 +26,8 @@ static int ums_read_sector(struct ums *ums_dev,
 {
 	struct blk_desc *block_dev = &ums_dev->block_dev;
 	lbaint_t blkstart = start + ums_dev->start_sector;
+
+	//printf("%s: blk %s read %lu bytes @ %#lx\n", __func__, block_dev->bdev->name, blkcnt, blkstart);
 
 	return blk_dread(block_dev, blkstart, blkcnt, buf);
 }
@@ -87,10 +90,6 @@ static int ums_init(const char *devtype, const char *devnums_part_str)
 		 */
 		if (!strchr(devnum_part_str, ':'))
 			partnum = 0;
-
-		/* f_mass_storage.c assumes SECTOR_SIZE sectors */
-		if (block_dev->blksz != SECTOR_SIZE)
-			goto cleanup;
 
 		ums_new = realloc(ums, (ums_count + 1) * sizeof(*ums));
 		if (!ums_new)

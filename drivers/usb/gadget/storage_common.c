@@ -49,7 +49,6 @@
 
 /* #include <asm/unaligned.h> */
 
-
 /*
  * Thanks to NetChip Technologies for donating this product ID.
  *
@@ -269,6 +268,7 @@ struct device_attribute { int i; };
 #define ETOOSMALL	525
 
 #include <log.h>
+#include <linux/log2.h>
 #include <usb_mass_storage.h>
 #include <dm/device_compat.h>
 
@@ -290,6 +290,8 @@ struct fsg_lun {
 	u32		sense_data;
 	u32		sense_data_info;
 	u32		unit_attention_data;
+	unsigned int	blkbits;
+	unsigned int	blksize; /* logical block size of bound block device */
 
 	struct device	dev;
 };
@@ -566,7 +568,7 @@ static struct usb_gadget_strings	fsg_stringtab = {
  */
 
 static int fsg_lun_open(struct fsg_lun *curlun, unsigned int num_sectors,
-			const char *filename)
+			unsigned int sector_size, const char *filename)
 {
 	int				ro;
 
@@ -574,9 +576,12 @@ static int fsg_lun_open(struct fsg_lun *curlun, unsigned int num_sectors,
 	ro = curlun->initially_ro;
 
 	curlun->ro = ro;
-	curlun->file_length = num_sectors << 9;
+	curlun->file_length = num_sectors * sector_size;
 	curlun->num_sectors = num_sectors;
-	debug("open backing file: %s\n", filename);
+	curlun->blksize = sector_size;
+	curlun->blkbits = order_base_2(sector_size >> 9) + 9;
+	debug("blksize: %u\n", sector_size);
+	debug("open backing file: '%s'\n", filename);
 
 	return 0;
 }
