@@ -834,6 +834,11 @@ struct ufs_hba {
 	 */
 #define UFSHCD_QUIRK_REINIT_AFTER_MAX_GEAR_SWITCH	(1 << 19)
 
+	/*
+	 * Skips configuring the power mode and assumes lowest gear.
+	 */
+#define UFSHCD_QUIRK_SKIP_CHANGE_POWER_MODE		(1 << 20)
+
 	/* Virtual memory reference */
 	struct utp_transfer_cmd_desc *ucdl;
 	struct utp_transfer_req_desc *utrdl;
@@ -978,8 +983,7 @@ enum {
 
 #define UFSHCD_UIC_MASK		(UIC_COMMAND_COMPL | UIC_POWER_MODE)
 
-#define UFSHCD_ERROR_MASK	(UIC_ERROR |\
-				DEVICE_FATAL_ERROR |\
+#define UFSHCD_ERROR_MASK	(DEVICE_FATAL_ERROR |\
 				CONTROLLER_FATAL_ERROR |\
 				SYSTEM_BUS_FATAL_ERROR)
 

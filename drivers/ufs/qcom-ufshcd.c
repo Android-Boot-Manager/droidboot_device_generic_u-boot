@@ -279,6 +279,9 @@ static void ufs_qcom_advertise_quirks(struct ufs_hba *hba)
 
 	if (priv->hw_ver.major > 0x3)
 		hba->quirks |= UFSHCD_QUIRK_REINIT_AFTER_MAX_GEAR_SWITCH;
+
+	if (ofnode_device_is_compatible(dev_ofnode(hba->dev), "qcom,sm8250-ufshc"))
+		hba->quirks |= UFSHCD_QUIRK_SKIP_CHANGE_POWER_MODE;
 }
 
 static void ufs_qcom_dev_ref_clk_ctrl(struct ufs_hba *hba, bool enable)

@@ -1976,12 +1976,14 @@ int ufs_start(struct ufs_hba *hba)
 			"%s: Failed getting max supported power mode\n",
 			__func__);
 	} else {
-		ret = ufshcd_change_power_mode(hba, &hba->max_pwr_info.info);
-		if (ret) {
-			dev_err(hba->dev, "%s: Failed setting power mode, err = %d\n",
-				__func__, ret);
+		if (!(hba->quirks & UFSHCD_QUIRK_SKIP_CHANGE_POWER_MODE)) {
+			ret = ufshcd_change_power_mode(hba, &hba->max_pwr_info.info);
+			if (ret) {
+				dev_err(hba->dev, "%s: Failed setting power mode, err = %d\n",
+					__func__, ret);
 
-			return ret;
+				return ret;
+			}
 		}
 
 		debug("UFS Device %s is up!\n", hba->dev->name);
