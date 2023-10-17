@@ -59,6 +59,16 @@
 		enable-active-high;
 		states = <0 0>, <1800000 1>;
 	};
+
+	gpio-keys {
+		compatible = "gpio-keys";
+
+		key-vol-up {
+			label = "Volume Up";
+			linux,code = <KEY_UP>;
+			gpios = <&pm8998_gpios 5 GPIO_ACTIVE_LOW>;
+		};
+	};
 };
 
 &pm8998_resin {
