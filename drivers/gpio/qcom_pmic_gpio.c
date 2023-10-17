@@ -64,6 +64,17 @@
 #define REG_EN_CTL             0x46
 #define REG_EN_CTL_ENABLE      (1 << 7)
 
+/**
+ * pmic_gpio_match_data - platform specific configuration
+ *
+ * @PMIC_MATCH_NONE: no flags
+ * @PMIC_MATCH_READONLY: treat all GPIOs as readonly, don't attempt to configure them
+ */
+enum pmic_gpio_match_data {
+	PMIC_MATCH_NONE,
+	PMIC_MATCH_READONLY = (1 << 0),
+};
+
 struct qcom_gpio_bank {
 	uint32_t pid; /* Peripheral ID on SPMI bus */
 	bool     lv_mv_type; /* If subtype is GPIO_LV(0x10) or GPIO_MV(0x11) */
@@ -75,7 +86,12 @@ static int qcom_gpio_set_direction(struct udevice *dev, unsigned offset,
 	struct qcom_gpio_bank *priv = dev_get_priv(dev);
 	uint32_t gpio_base = priv->pid + REG_OFFSET(offset);
 	uint32_t reg_ctl_val;
-	int ret;
+	ulong match_flags = dev_get_driver_data(dev);
+	int ret = 0;
+
+	/* Some PMICs don't like their GPIOs being configured */
+	if (match_flags & PMIC_MATCH_READONLY)
+		return 0;
 
 	/* Disable the GPIO */
 	ret = pmic_clrsetbits(dev->parent, gpio_base + REG_EN_CTL,
@@ -280,10 +296,10 @@ static int qcom_gpio_of_to_plat(struct udevice *dev)
 }
 
 static const struct udevice_id qcom_gpio_ids[] = {
-	{ .compatible = "qcom,pm8916-gpio", },
-	{ .compatible = "qcom,pm8994-gpio", },
-	{ .compatible = "qcom,pm8998-gpio", },
-	{ .compatible = "qcom,pms405-gpio", },
+	{ .compatible = "qcom,pm8916-gpio" },
+	{ .compatible = "qcom,pm8994-gpio" },	/* 22 GPIO's */
+	{ .compatible = "qcom,pm8998-gpio", .data = PMIC_MATCH_READONLY },
+	{ .compatible = "qcom,pms405-gpio" },
 	{ }
 };
 
