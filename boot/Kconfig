@@ -452,6 +452,14 @@ config BOOTSTD_BOOTCOMMAND
 	  standard boot does not support all of the features of distro boot
 	  yet.
 
+config BOOTSTD_IGNORE_BOOTABLE
+	bool "Don't rely on the bootable flag when scanning bootflows"
+	help
+	  Enable this to avoid relying on the bootable partition flag. On some
+	  devices with complicated partition tables this flag may be set by mistake
+	  resulting in bootflows not being recognised. Set this to always scan all
+	  partitions.
+
 config BOOTMETH_GLOBAL
 	bool
 	help

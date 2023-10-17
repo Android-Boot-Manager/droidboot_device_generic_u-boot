@@ -27,7 +27,7 @@ enum {
 	 * have. Note that for disks this limits the partitions numbers that
 	 * are scanned to 1..MAX_BOOTFLOWS_PER_BOOTDEV
 	 */
-	MAX_PART_PER_BOOTDEV	= 30,
+	MAX_PART_PER_BOOTDEV	= 96,
 
 	/* Maximum supported length of the "boot_targets" env string */
 	BOOT_TARGETS_MAX_LEN	= 100,
@@ -173,21 +173,25 @@ int bootdev_find_in_blk(struct udevice *dev, struct udevice *blk,
 	 */
 	iter->max_part = MAX_PART_PER_BOOTDEV;
 
-	/* If this is the whole disk, check if we have bootable partitions */
-	if (!iter->part) {
-		iter->first_bootable = part_get_bootable(desc);
-		log_debug("checking bootable=%d\n", iter->first_bootable);
-	} else if (allow_any_part) {
-		/*
-		 * allow any partition to be scanned, by skipping any checks
-		 * for filesystems or partition contents on this disk
-		 */
+	if (!IS_ENABLED(CONFIG_BOOTSTD_IGNORE_BOOTABLE)) {
+		/* If this is the whole disk, check if we have bootable partitions */
+		if (!iter->part) {
+			iter->first_bootable = part_get_bootable(desc);
+			log_debug("checking bootable=%d\n", iter->first_bootable);
+		} else if (allow_any_part) {
+			/*
+			* allow any partition to be scanned, by skipping any checks
+			* for filesystems or partition contents on this disk
+			*/
 
-	/* if there are bootable partitions, scan only those */
-	} else if (iter->first_bootable >= 0 &&
-		   (iter->first_bootable ? !info.bootable : iter->part != 1)) {
-		return log_msg_ret("boot", -EINVAL);
-	} else {
+		/* if there are bootable partitions, scan only those */
+		} else if (iter->first_bootable >= 0 &&
+			(iter->first_bootable ? !info.bootable : iter->part != 1)) {
+			return log_msg_ret("boot", -EINVAL);
+		}
+	}
+
+	if (iter->part) {
 		ret = fs_set_blk_dev_with_part(desc, bflow->part);
 		bflow->state = BOOTFLOWST_PART;
 		if (ret)
