@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <efi_loader.h>
+#include <lmb.h>
 #include <log.h>
 #include <malloc.h>
 #include <mapmem.h>
@@ -49,25 +50,24 @@ efi_status_t efi_smbios_register(void)
 
 static int install_smbios_table(void)
 {
-	ulong addr;
-	void *buf;
+	struct lmb lmb;
+	phys_addr_t addr;
 
 	if (!IS_ENABLED(CONFIG_GENERATE_SMBIOS_TABLE) || IS_ENABLED(CONFIG_X86))
 		return 0;
 
-	/* Align the table to a 4KB boundary to keep EFI happy */
-	buf = memalign(SZ_4K, TABLE_SIZE);
-	if (!buf)
-		return log_msg_ret("mem", -ENOMEM);
+	lmb_init_and_reserve(&lmb, gd->bd, (void*)gd->fdt_blob);
 
-	addr = map_to_sysmem(buf);
+	addr = lmb_alloc_base(&lmb, TABLE_SIZE, SZ_4K, UINT_MAX);
+	addr = map_to_sysmem((void*)addr);
+
 	if (!write_smbios_table(addr)) {
 		log_err("Failed to write SMBIOS table\n");
 		return log_msg_ret("smbios", -EINVAL);
 	}
 
 	/* Make a note of where we put it */
-	log_debug("SMBIOS tables written to %lx\n", addr);
+	log_debug("SMBIOS tables written to %llx\n", addr);
 	gd->arch.smbios_start = addr;
 
 	return 0;
