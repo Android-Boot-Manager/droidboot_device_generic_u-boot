@@ -25,4 +25,19 @@ static inline u32 qcom_pin_offset(const unsigned int *offs, unsigned int selecto
 	return out;
 }
 
+struct udevice;
+
+/**
+ * msm_pinctrl_is_reserved() - Check if a pin lies in a reserved range
+ *
+ * @dev: pinctrl device
+ * @pin: Pin number
+ *
+ * Returns: true if pin is reserved, otherwise false
+ *
+ * Call using dev_get_parent() from the GPIO device, it is a child of
+ * the pinctrl device.
+ */
+bool msm_pinctrl_is_reserved(struct udevice *dev, unsigned int pin);
+
 #endif /* _QCOM_GPIO_H_ */

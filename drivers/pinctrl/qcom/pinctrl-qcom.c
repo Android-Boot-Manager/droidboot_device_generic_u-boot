@@ -20,9 +20,13 @@
 
 #include "pinctrl-qcom.h"
 
+#define MSM_PINCTRL_MAX_RESERVED_RANGES 32
+
 struct msm_pinctrl_priv {
 	phys_addr_t base;
 	struct msm_pinctrl_data *data;
+	u32 reserved_ranges[MSM_PINCTRL_MAX_RESERVED_RANGES * 2];
+	int reserved_ranges_count;
 };
 
 #define GPIO_CONFIG_REG(priv, x) \
@@ -61,12 +65,52 @@ static const char *msm_get_function_name(struct udevice *dev,
 	return priv->data->get_function_name(dev, selector);
 }
 
+static int msm_pinctrl_parse_ranges(struct udevice *dev)
+{
+	struct msm_pinctrl_priv *priv = dev_get_priv(dev);
+	int count;
+
+	if (ofnode_read_prop(dev_ofnode(dev), "gpio-reserved-ranges",
+			     &count)) {
+		if (count % 2 == 1) {
+			dev_err(dev, "gpio-reserved-ranges must be a multiple of 2\n");
+			return -EINVAL;
+		}
+		/* Size is in bytes, but we're indexing by ints */
+		count /= 4;
+
+		if (count > MSM_PINCTRL_MAX_RESERVED_RANGES) {
+			dev_err(dev, "gpio-reserved-ranges must be less than %d (got %d)\n",
+				MSM_PINCTRL_MAX_RESERVED_RANGES, count);
+			return -EINVAL;
+		}
+
+		priv->reserved_ranges_count = count;
+		for (count = 0; count < priv->reserved_ranges_count; count++) {
+			if (ofnode_read_u32_index(dev_ofnode(dev), "gpio-reserved-ranges",
+						  count, &priv->reserved_ranges[count])) {
+				dev_err(dev, "failed to read gpio-reserved-ranges[%d]\n", count);
+				return -EINVAL;
+			}
+		}
+	}
+
+	return 0;
+}
+
 static int msm_pinctrl_probe(struct udevice *dev)
 {
 	struct msm_pinctrl_priv *priv = dev_get_priv(dev);
+	int ret;
 
 	priv->base = dev_read_addr(dev);
 	priv->data = (struct msm_pinctrl_data *)dev_get_driver_data(dev);
+
+	ret = msm_pinctrl_parse_ranges(dev);
+	if (ret) {
+		printf("Couldn't parse reserved GPIO ranges!\n");
+		return ret;
+	}
 
 	return priv->base == FDT_ADDR_T_NONE ? -EINVAL : 0;
 }
@@ -83,6 +127,9 @@ static int msm_pinmux_set(struct udevice *dev, unsigned int pin_selector,
 {
 	struct msm_pinctrl_priv *priv = dev_get_priv(dev);
 
+	if (msm_pinctrl_is_reserved(dev, pin_selector))
+		return 0;
+
 	clrsetbits_le32(priv->base + GPIO_CONFIG_REG(priv, pin_selector),
 			TLMM_FUNC_SEL_MASK | TLMM_GPIO_DISABLE,
 			priv->data->get_function_mux(func_selector) << 2);
@@ -93,6 +140,9 @@ static int msm_pinconf_set(struct udevice *dev, unsigned int pin_selector,
 			   unsigned int param, unsigned int argument)
 {
 	struct msm_pinctrl_priv *priv = dev_get_priv(dev);
+
+	if (msm_pinctrl_is_reserved(dev, pin_selector))
+		return 0;
 
 	switch (param) {
 	case PIN_CONFIG_DRIVE_STRENGTH:
@@ -178,3 +228,17 @@ U_BOOT_DRIVER(pinctrl_qcom) = {
 	.ops		= &msm_pinctrl_ops,
 	.probe		= msm_pinctrl_probe,
 };
+
+bool msm_pinctrl_is_reserved(struct udevice *dev, unsigned int pin)
+{
+	struct msm_pinctrl_priv *priv = dev_get_priv(dev);
+	unsigned int i, start;
+
+	for (i = 0; i < priv->reserved_ranges_count; i += 2) {
+		start = priv->reserved_ranges[i];
+		if (pin >= start && pin < start + priv->reserved_ranges[i + 1])
+			return true;
+	}
+
+	return false;
+}
