@@ -573,6 +573,7 @@ R:	Sumit Garg <sumit.garg@linaro.org>
 S:	Maintained
 F:	arch/arm/mach-snapdragon/
 F:	configs/qcom_defconfig
+F:	doc/board/qualcomm
 F:	drivers/button/button-qcom-pmic.c
 F:	drivers/clk/qcom/
 F:	drivers/gpio/msm_gpio.c
