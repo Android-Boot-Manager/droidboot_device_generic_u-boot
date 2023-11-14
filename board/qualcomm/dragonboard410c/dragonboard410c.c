@@ -46,10 +46,10 @@ int board_usb_init(int index, enum usb_init_type init)
 
 	if (!pmic_gpio) {
 		ret = uclass_get_device_by_name(UCLASS_GPIO,
-						"pm8916_gpios@c000",
+						"gpio@c000",
 						&pmic_gpio);
 		if (ret < 0) {
-			printf("Failed to find pm8916_gpios@c000 node.\n");
+			printf("Failed to find gpio@c000 node.\n");
 			return ret;
 		}
 	}
