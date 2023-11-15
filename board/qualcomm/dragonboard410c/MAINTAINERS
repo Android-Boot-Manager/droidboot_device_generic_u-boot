@@ -4,4 +4,5 @@ S:	Maintained
 F:	board/qualcomm/dragonboard410c/
 F:	include/configs/dragonboard410c.h
 F:	configs/dragonboard410c_defconfig
+F:	configs/dragonboard410c_chainloaded_defconfig
 F:	doc/board/qualcomm/dragonboard410c.rst
