@@ -81,7 +81,7 @@ config SPL_SYS_NO_VECTOR_TABLE
 
 config LINUX_KERNEL_IMAGE_HEADER
 	depends on ARM64
-	bool
+	bool "Linux kernel binary header"
 	help
 	  Place a Linux kernel image header at the start of the U-Boot binary.
 	  The format of the header is described in the Linux kernel source at
