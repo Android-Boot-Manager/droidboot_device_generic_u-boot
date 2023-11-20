@@ -1075,7 +1075,10 @@ config ARCH_SNAPDRAGON
 	select OF_SEPARATE
 	select SMEM
 	select SPMI
+	select OF_BOARD
+	select SAVE_PREV_BL_FDT_ADDR
 	imply CMD_DM
+	imply LINUX_KERNEL_IMAGE_HEADER
 
 config ARCH_SOCFPGA
 	bool "Altera SOCFPGA family"
