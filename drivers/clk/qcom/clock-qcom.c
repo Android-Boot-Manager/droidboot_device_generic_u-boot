@@ -39,6 +39,18 @@ void clk_enable_cbc(phys_addr_t cbcr)
 		;
 }
 
+void gdsc_enable(phys_addr_t gdscr)
+{
+	uint32_t count;
+	clrbits_le32(gdscr, GDSC_SW_COLLAPSE);
+	for (count = 0; count < 1500; count++) {
+		if (readl(gdscr) & GDSC_PWR_ON)
+			break;
+		udelay(1);
+	}
+	WARN(count == 1500, "WARNING: GDSC @ %#llx stuck at off\n", gdscr);
+}
+
 void clk_enable_gpll0(phys_addr_t base, const struct pll_vote_clk *gpll0)
 {
 	if (readl(base + gpll0->status) & gpll0->status_bit)

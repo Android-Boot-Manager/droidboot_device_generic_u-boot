@@ -12,6 +12,9 @@
 #define CFG_CLK_SRC_GPLL0_EVEN (6 << 8)
 #define CFG_CLK_SRC_MASK  (7 << 8)
 
+#define GDSC_PWR_ON		BIT(31)
+#define GDSC_SW_COLLAPSE	BIT(0)
+
 #define RCG_CFG_REG		0x4
 #define RCG_M_REG		0x8
 #define RCG_N_REG		0xc
