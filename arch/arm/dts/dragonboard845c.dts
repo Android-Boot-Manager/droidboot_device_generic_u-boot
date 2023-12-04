@@ -87,6 +87,30 @@
 	status = "okay";
 };
 
+&usb_1 {
+	status = "okay";
+	qcom,select-utmi-as-pipe-clk;
+};
+
+&usb_1_dwc3 {
+	dr_mode = "peripheral";
+
+	/* We don't support superspeed in u-boot so remove the SSPHY */
+	phys = <&usb_1_hsphy>;
+	phy-names = "usb2-phy";
+
+	/* fastest mode for USB 2 */
+	maximum-speed = "high-speed";
+};
+
+&usb_1_hsphy {
+	/* Remove ref clk because rmphcc isn't available */
+	clocks = <&gcc GCC_USB_PHY_CFG_AHB2PHY_CLK>;
+	clock-names = "cfg_ahb";
+
+	status = "okay";
+};
+
 &usb_2 {
 	status = "okay";
 	qcom,select-utmi-as-pipe-clk;
