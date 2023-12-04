@@ -1583,6 +1583,8 @@ static int ufs_scsi_exec(struct udevice *scsi_dev, struct scsi_cmd *pccb)
 
 	ufshcd_send_command(hba, TASK_TAG);
 
+	flush_dcache_range((unsigned long)hba->utrdl, sizeof(struct utp_transfer_req_desc));
+
 	ocs = ufshcd_get_tr_ocs(hba);
 	switch (ocs) {
 	case OCS_SUCCESS:
