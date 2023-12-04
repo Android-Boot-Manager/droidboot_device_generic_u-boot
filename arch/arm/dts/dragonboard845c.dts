@@ -75,6 +75,19 @@
 	status = "okay";
 };
 
+&sdhc_2 {
+	status = "okay";
+
+	clocks = <&gcc GCC_SDCC2_AHB_CLK>,
+		 <&gcc GCC_SDCC2_APPS_CLK>;
+	clock-names = "iface", "core";
+
+	clock-frequency = <200000000>;
+
+	bus-width = <4>;
+	non-removable;
+};
+
 &uart9 {
 	status = "okay";
 };
