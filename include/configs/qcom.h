@@ -23,7 +23,7 @@
 	"bootmenu_1=Enable USB mass storage=ums 0 scsi 0,1,2,3,4,5\0" \
 	"bootmenu_2=Enable fastboot mode=run fastboot\0" \
 	"bootmenu_3=Reset device=reset\0" \
-	"menucmd=bootmenu\0" \
+	"menucmd=bootmenu -1\0" \
 	"bootcmd=bootflow scan -b\0" /* first entry is default */
 
 #endif
