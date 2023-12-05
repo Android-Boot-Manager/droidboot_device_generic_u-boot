@@ -19,10 +19,12 @@
 	"stderr=serial,vidconsole\0" \
 	"preboot=bootflow scan -l\0" \
 	"fastboot=fastboot -l $fastboot_addr_r usb 0\0" \
+	"serial_gadget=setenv stdin serial,button-kbd,usbacm; setenv stdout serial,vidconsole,usbacm; setenv stderr serial,vidconsole,usbacm; setenv bootretry -1; echo Enabled U-Boot console gadget :3\0" \
 	"bootmenu_0=Boot first available device=bootflow scan -b\0" \
 	"bootmenu_1=Enable USB mass storage=ums 0 scsi 0,1,2,3,4,5\0" \
 	"bootmenu_2=Enable fastboot mode=run fastboot\0" \
-	"bootmenu_3=Reset device=reset\0" \
+	"bootmenu_3=Enable serial console gadget=run serial_gadget\0" \
+	"bootmenu_4=Reset device=reset\0" \
 	"menucmd=bootmenu -1\0" \
 	"bootcmd=bootflow scan -b\0" /* first entry is default */
 
