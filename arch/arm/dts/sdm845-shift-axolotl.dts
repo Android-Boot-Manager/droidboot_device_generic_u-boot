@@ -1,40 +1,54 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * OnePlus 6/6T (enchilada/fajita) board device tree source
+ * SHIFT6mq (axolotl) board device tree source
  *
- * (C) Copyright 2023 Caleb Connolly <caleb.connolly@linaro.org>
+ * (C) Copyright 2023 Linaro
+ * Author: Caleb Connolly <caleb.connolly@linaro.org>
  *
  */
 
 /dts-v1/;
 
+#include <dt-bindings/input/linux-event-codes.h>
+
 #include "sdm845.dtsi"
 #include "pm8998.dtsi"
 
 / {
+	model = "SHIFT6mq";
+	compatible = "shift,axolotl", "qcom,sdm845", "qcom,mtp";
+
 	aliases {
 		serial0 = &uart9;
 	};
 
 	chosen {
-		stdout-path = "serial0:115200n8";
+		stdout-path = "serial0:921600n8";
+	};
+
+	smbios {
+		compatible = "u-boot,sysinfo-smbios";
+
+		smbios {
+			system {
+				manufacturer = "SHIFT";
+				product = "SHIFT6mq";
+			};
+
+			baseboard {
+				manufacturer = "SHIFT";
+				product = "SHIFT6mq";
+			};
+		};
 	};
 
 	gpio-keys {
 		compatible = "gpio-keys";
 
-		key-vol-down {
-			label = "Volume down";
-			linux,code = <KEY_DOWN>;
-			gpios = <&pm8998_gpios 4 GPIO_ACTIVE_LOW>;
-			debounce-interval = <15>;
-		};
-
 		key-vol-up {
-			label = "Volume up";
+			label = "vol_up";
 			linux,code = <KEY_UP>;
 			gpios = <&pm8998_gpios 5 GPIO_ACTIVE_LOW>;
-			debounce-interval = <15>;
 		};
 	};
 
@@ -46,6 +60,21 @@
 		stride = <(1080 * 4)>;
 		format = "a8r8g8b8";
 	};
+};
+
+&pm8998_resin {
+	status = "okay";
+};
+
+&sdhc_2 {
+	status = "disabled";
+
+	clocks = <&gcc GCC_SDCC2_AHB_CLK>,
+		 <&gcc GCC_SDCC2_APPS_CLK>;
+	clock-names = "iface", "core";
+
+	bus-width = <4>;
+	non-removable;
 };
 
 &tlmm {

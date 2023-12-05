@@ -12,3 +12,7 @@
 	model = "OnePlus 6T";
 	compatible = "oneplus,fajita", "qcom,sdm845";
 };
+
+&framebuffer {
+	height = <2340>;
+};

@@ -605,9 +605,11 @@ dtb-$(CONFIG_ARCH_SNAPDRAGON) += dragonboard410c.dtb \
 	dragonboard845c.dtb \
 	starqltechn.dtb \
 	qcs404-evb.dtb \
-	axolotl.dtb \
-	enchilada.dtb \
-	fajita.dtb \
+	sdm845-shift-axolotl.dtb \
+	sdm845-oneplus-enchilada.dtb \
+	sdm845-oneplus-fajita.dtb \
+	sdm845-xiaomi-beryllium-ebbg.dtb \
+	sdm845-xiaomi-beryllium-tianma.dtb \
 	rb1.dtb \
 	rb2.dtb \
 	rb5.dtb
