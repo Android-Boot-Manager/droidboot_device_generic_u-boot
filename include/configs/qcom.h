@@ -24,7 +24,8 @@
 	"bootmenu_1=Enable USB mass storage=ums 0 scsi 0,1,2,3,4,5\0" \
 	"bootmenu_2=Enable fastboot mode=run fastboot\0" \
 	"bootmenu_3=Enable serial console gadget=run serial_gadget\0" \
-	"bootmenu_4=Reset device=reset\0" \
+	"bootmenu_4=Disable auto-retry (DEBUG)=setenv bootretry -1\0" \
+	"bootmenu_5=Reset device=reset\0" \
 	"menucmd=bootmenu -1\0" \
 	"bootcmd=bootflow scan -b\0" /* first entry is default */
 
