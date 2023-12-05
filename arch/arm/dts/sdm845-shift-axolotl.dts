@@ -16,7 +16,7 @@
 
 / {
 	model = "SHIFT6mq";
-	compatible = "shift,axolotl", "qcom,sdm845", "qcom,mtp";
+	compatible = "shift,axolotl", "qcom,sdm845";
 
 	aliases {
 		serial0 = &uart9;
