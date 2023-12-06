@@ -92,11 +92,6 @@ void *board_fdt_blob_setup(int *err)
 	return (void *)fdt;
 }
 
-void reset_cpu(void)
-{
-	psci_system_reset();
-}
-
 /*
  * Some boards still need board specific init code, they can implement that by
  * overriding this function.
