@@ -35,22 +35,6 @@
 		};
 	};
 
-	smbios {
-		compatible = "u-boot,sysinfo-smbios";
-
-		smbios {
-			system {
-				manufacturer = "Xiaomi";
-				product = "PocoPhone F1";
-			};
-
-			baseboard {
-				manufacturer = "Xiaomi";
-				product = "PocoPhone F1";
-			};
-		};
-	};
-
 	framebuffer: framebuffer@9D400000 {
 		compatible = "simple-framebuffer";
 		reg = <0 0x9D400000 0 0x2400000>;

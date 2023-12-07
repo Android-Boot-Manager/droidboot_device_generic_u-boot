@@ -11,20 +11,4 @@
 / {
 	model = "OnePlus 6";
 	compatible = "oneplus,enchilada", "qcom,sdm845";
-
-	smbios {
-		compatible = "u-boot,sysinfo-smbios";
-
-		smbios {
-			system {
-				manufacturer = "OnePlus Technology (Shenzhen) Co., Ltd.";
-				product = "OnePlus 6";
-			};
-
-			baseboard {
-				manufacturer = "OnePlus Technology (Shenzhen) Co., Ltd.";
-				product = "OnePlus 6";
-			};
-		};
-	};
 };
