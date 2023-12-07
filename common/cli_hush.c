@@ -1032,7 +1032,7 @@ static void get_user_input(struct in_str *i)
 #  ifdef CONFIG_RESET_TO_RETRY
 	  do_reset(NULL, 0, 0, NULL);
 #  else
-	strcpy(console_buffer, "bootmenu -1\n");
+	  strcpy(console_buffer, "run menucmd\n");
 #  endif
 	}
 #endif
