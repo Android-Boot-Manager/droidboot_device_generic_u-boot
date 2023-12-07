@@ -11,6 +11,22 @@
 / {
 	model = "OnePlus 6T";
 	compatible = "oneplus,fajita", "qcom,sdm845";
+
+	smbios {
+		compatible = "u-boot,sysinfo-smbios";
+
+		smbios {
+			system {
+				manufacturer = "OnePlus Technology (Shenzhen) Co., Ltd.";
+				product = "OnePlus 6T";
+			};
+
+			baseboard {
+				manufacturer = "OnePlus Technology (Shenzhen) Co., Ltd.";
+				product = "OnePlus 6T";
+			};
+		};
+	};
 };
 
 &framebuffer {
