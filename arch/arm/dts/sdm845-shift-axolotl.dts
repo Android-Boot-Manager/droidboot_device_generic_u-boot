@@ -48,7 +48,7 @@
 		key-vol-up {
 			label = "vol_up";
 			linux,code = <KEY_UP>;
-			gpios = <&pm8998_gpios 5 GPIO_ACTIVE_LOW>;
+			gpios = <&pm8998_gpios 6 GPIO_ACTIVE_LOW>;
 		};
 	};
 

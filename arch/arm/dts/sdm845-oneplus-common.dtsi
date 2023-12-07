@@ -26,14 +26,14 @@
 		key-vol-down {
 			label = "Volume down";
 			linux,code = <KEY_DOWN>;
-			gpios = <&pm8998_gpios 4 GPIO_ACTIVE_LOW>;
+			gpios = <&pm8998_gpios 5 GPIO_ACTIVE_LOW>;
 			debounce-interval = <15>;
 		};
 
 		key-vol-up {
 			label = "Volume up";
 			linux,code = <KEY_UP>;
-			gpios = <&pm8998_gpios 5 GPIO_ACTIVE_LOW>;
+			gpios = <&pm8998_gpios 6 GPIO_ACTIVE_LOW>;
 			debounce-interval = <15>;
 		};
 	};
