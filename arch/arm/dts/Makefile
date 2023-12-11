@@ -612,7 +612,8 @@ dtb-$(CONFIG_ARCH_SNAPDRAGON) += dragonboard410c.dtb \
 	sdm845-xiaomi-beryllium-tianma.dtb \
 	rb1.dtb \
 	rb2.dtb \
-	rb5.dtb
+	rb5.dtb \
+	qcm6490-fairphone-fp5.dtb
 
 dtb-$(CONFIG_TARGET_STEMMY) += ste-ux500-samsung-stemmy.dtb
 
